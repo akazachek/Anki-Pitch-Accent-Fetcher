@@ -54,9 +54,9 @@ def wordPitchType(wordPitch):
     try:
         return wordPitch.index(1) + 1
     except ValueError:
-        if wordPitch[-1] == 2:
-            return len(wordPitch) + 1
-        elif wordPitch[0] == 0:
+        if wordPitch[-1] == 2 and wordPitch[0] == 0:
+            return 0
+        elif wordPitch[0] == 0 and len(wordPitch) == 1:
             return 0
     raise IndexError("Err: Invalid pitch accent parsed.")
         
