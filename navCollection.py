@@ -16,7 +16,7 @@ def getCards(colName, deckName):
     for deck in decksDict:
         deckInfo = decksDict[deck]
         if deckInfo["name"] == deckName: deckID = deckInfo["id"] 
-    if deckID == "": raise KeyError("No such deck exists.")
+    if deckID == "": raise KeyError("Err: No such deck exists.")
     
     for i in range(len(cards)):
         if cards[i][1] == deckID:
