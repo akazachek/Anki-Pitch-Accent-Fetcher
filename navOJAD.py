@@ -1,5 +1,6 @@
 from selenium.webdriver import Chrome
 from selenium.common.exceptions import NoSuchElementException
+from contextlib import suppress
 
 classNames = ["mola_-", " accent_top mola_-", " accent_plain mola_-"]
 
@@ -21,15 +22,14 @@ def searchWord(browser, word):
     if wordPos == -1: raise KeyError("Err: Not found in OJAD.")
     
     # (ugly) hardcoded navigation to the correct element in OJAD's table where every mora's pitch is stored
+    # TODO: in certan situations OJAD creates an empty row, need to detect and handle that
     OJADMoraSpan = browser.find_elements_by_xpath('//*[@id="word_table"]/tbody/tr[' + str(wordPos + 1) + ']/td[3]')[0].find_element_by_class_name("accented_word")
     
     wordPitch = []
     # words will never be longer than 6 mora in length (at least i hope)
     for moraInd in range(6, 0, -1):
-        try:
+        with suppress (IndexError):
             wordPitch.append(moraPitch(OJADMoraSpan, moraInd))
-        except IndexError:
-            pass
 
     return wordPitchType(wordPitch)
     
@@ -38,15 +38,13 @@ def searchWord(browser, word):
 # return of 2 means pitch is high and stays high
 def moraPitch(OJADMoraSpan, moraInd):
     for nameInd in range(3):
-        try:
+        with suppress (NoSuchElementException):
             # classCond = "span[class='" + classNames[nameInd] + str(moraInd) + "']"
             # OJADMoraSpan.find_element_by_css_selector(classCond)
             # looking for exact class match
             classCond = ".//span[@class='" + classNames[nameInd] + str(moraInd) + "']"
             OJADMoraSpan.find_element_by_xpath(classCond)
             return(nameInd)
-        except NoSuchElementException:
-            pass
     raise IndexError("Err: Mora index " + str(moraInd) + " invalid.")
 
 # returns pitch accent type based on standard dictionary defn
@@ -54,9 +52,10 @@ def wordPitchType(wordPitch):
     try:
         return wordPitch.index(1) + 1
     except ValueError:
-        if wordPitch[-1] == 2 and wordPitch[0] == 0:
-            return 0
-        elif wordPitch[0] == 0 and len(wordPitch) == 1:
-            return 0
+        if wordPitch[0] == 0:
+            if wordPitch[-1] == 2:
+                return 0
+            elif len(wordPitch) == 1:
+                return 0
     raise IndexError("Err: Invalid pitch accent parsed.")
         
