@@ -1,12 +1,9 @@
-from anki import Collection
 import json
 
-def getCards(colName, deckName):
+def getCards(col, deckName):
     
-    col = Collection(colName)
     decks = col.db.scalar("SELECT decks FROM col")
     cards = col.db.all("SELECT nid,did FROM cards")
-    notes = col.db.all("SELECT id,sfld FROM notes")
 
     fetchedNoteIDs = []
     fetchedCards = []
@@ -26,11 +23,13 @@ def getCards(colName, deckName):
         try:
             # should be exactly one matching card
             cardID = col.findCards("nid:" + str(ID))[0]
-            noteSFLD = "N/A"
-            for i in range(len(notes)):
-                if notes[i][0] == ID:
-                    noteSFLD = notes[i][1]
-                    fetchedCards.append([cardID, noteSFLD])
+            noteWord = "N/A"
+            note = col.getCard(cardID).note()
+            note.load()
+            # hardcoded for my deck, will return the card's word in kanji
+            key = "Vocabulary-Kanji"
+            noteWord = note.__getitem__(key)
+            fetchedCards.append([cardID, noteWord])
         except OverflowError:
             pass
         

@@ -1,4 +1,3 @@
-from selenium.webdriver import Chrome
 from selenium.common.exceptions import NoSuchElementException
 from contextlib import suppress
 
