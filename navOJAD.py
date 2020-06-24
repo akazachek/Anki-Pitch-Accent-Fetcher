@@ -10,18 +10,21 @@ def searchWord(browser, word):
     searchBox.send_keys(word)
     searchBox.submit()
     
-    # handling synonyms
+    # finding word in table
     wordPos = -1
-    foundWords = browser.find_elements_by_class_name("midashi_word")
-    for wordInd in range(len(foundWords)):
-        if foundWords[wordInd].text == word:
-            wordPos = wordInd
-            break
+    OJADRows = browser.find_elements_by_xpath('//*[@id="word_table"]/tbody/tr')
+    for rowInd in range(len(OJADRows)):
+        with suppress (NoSuchElementException):
+            # will return table heading
+            # not looking for exact match because sometimes OJAD will list words like "なる　ー　なります"
+            OJADRowWord = OJADRows[rowInd].find_element_by_class_name("midashi_word").text[0 : len(word)]
+            if OJADRowWord == word:
+                wordPos = rowInd
+                break
     # means word cannot be found on OJAD
     if wordPos == -1: raise KeyError("Err: Not found in OJAD.")
     
     # (ugly) hardcoded navigation to the correct element in OJAD's table where every mora's pitch is stored
-    # TODO: in certan situations OJAD creates an empty row, need to detect and handle that
     OJADMoraSpan = browser.find_elements_by_xpath('//*[@id="word_table"]/tbody/tr[' + str(wordPos + 1) + ']/td[3]')[0].find_element_by_class_name("accented_word")
     
     wordPitch = []
