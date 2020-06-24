@@ -77,13 +77,13 @@ for wordInd in range(numCards):
     except (KeyError, IndexError) as e:
         cards[wordInd].append(str(e))
         if debug:
-            print(cards[wordInd][1] + " threw an exception:")
+            print("\n" + cards[wordInd][1] + " threw an exception:")
             print(str(e))
     except OverflowError:
         print("Could not search that many cards. Last card found was number " + wordInd)
         numCards = wordInd
         break
-print("Pitch accent data compiled.")
+print("\nPitch accent data compiled.")
 
 browser.close()
 print()
