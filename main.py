@@ -22,12 +22,12 @@ def progressBar(current, total, charLength):
     prcnt = float(current) * 100 / total
     arrow = "-" * int(prcnt/100 * charLength - 1) + ">"
     spaces = " " * (charLength - len(arrow))
-    print("\r[%s%s] %d %%" % (arrow, spaces, prcnt), end="")
+    print("\r[%s%s] %d %% (%d/%d)" % (arrow, spaces, prcnt, current, total), end="")
             
 print("Please ensure you have a backup. No changes made here are reversible.")
 print("------")
 debug = False
-if not getBinaryInput("Would you like to see the output?"):
+if not getBinaryInput("Would you like to see debug output?"):
     debug = True
 print()
 
@@ -62,7 +62,10 @@ if inp == "All" or inp == "all":
     numCards = len(cards)
 else:
     numCards = int(inp)
-print()
+
+if debug:
+    keyEWords = []
+    indEWords = []
 
 print("Starting browser...")
 chromeOpts = Options()
@@ -74,16 +77,28 @@ for wordInd in range(numCards):
         pitchAccent = searchWord(browser, cards[wordInd][1])
         cards[wordInd].append(pitchAccent)
         progressBar(wordInd, numCards, 20)
-    except (KeyError, IndexError) as e:
+    except IndexError as e:
         cards[wordInd].append(str(e))
         if debug:
             print("\n" + cards[wordInd][1] + " threw an exception:")
             print(str(e))
+            indEWords.append(cards[wordInd][1])
+    except KeyError as e:
+        cards[wordInd].append(str(e))
+        if debug:
+            print("\n" + cards[wordInd][1] + " threw an exception:")
+            print(str(e))
+            keyEWords.append(cards[wordInd][1])
     except OverflowError:
-        print("Could not search that many cards. Last card found was number " + wordInd)
+        print("Could not search that many cards. Last card found was number " + wordInd + ".")
         numCards = wordInd
         break
 print("\nPitch accent data compiled.")
+if debug:
+    print("Number of KeyErrors: " + str(len(keyEWords)) + ".")
+    print(keyEWords)
+    print("Number of IndexErrors: " + str(len(indEWords)) + ".")
+    print(indEWords)
 
 browser.close()
 print()
@@ -98,7 +113,7 @@ while(done == False):
             navCollection.modifyNote(col.getCard(cards[cardInd][0]), modKey, cards[cardInd][2])
             if debug: print(cards[cardInd][1] + " assigned value of " + str(cards[cardInd][2]))
         except KeyError:
-            print("Field not found for card with word " + cards[cardInd][1])
+            print("Field not found for card with word " + cards[cardInd][1] + ".")
     print("Cards modified.")
     if not getBinaryInput("Would you like to try again with a different field name? "):
         modKey = input("Enter a field name: ")
@@ -107,4 +122,5 @@ while(done == False):
 
 col.close()
 print("Collection saved.")
+print("Please ensure you hold 'Shift' next time you open Anki, and then force a one-way upload to AnkiWeb to preserve the changes.")
 quit()
