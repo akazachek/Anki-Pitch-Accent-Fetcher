@@ -22,7 +22,7 @@ def progressBar(current, total, charLength):
     prcnt = float(current) * 100 / total
     arrow = "-" * int(prcnt/100 * charLength - 1) + ">"
     spaces = " " * (charLength - len(arrow))
-    print("[%s%s] %d %%" % (arrow, spaces, prcnt), end="\r")
+    print("\r[%s%s] %d %%" % (arrow, spaces, prcnt), end="")
             
 print("Please ensure you have a backup. No changes made here are reversible.")
 print("------")
@@ -50,7 +50,7 @@ if not getBinaryInput("Does this field need to be changed?"):
 # format -- list of [anki card ID, associated word]
 while(True):
     try:
-        print("This may take a while.")
+        print("Loading collection...")
         cards = navCollection.getCards(col, deckID, searchKey)
         break
     except KeyError:
@@ -58,17 +58,17 @@ while(True):
 print()
 
 inp = input("How many cards would you like to search? Enter 'All' to search all cards. ")
-if inp == "All" or "all":
-    numCards = int(inp)
-else:
+if inp == "All" or inp == "all":
     numCards = len(cards)
+else:
+    numCards = int(inp)
 print()
 
-print("Starting browser.")
+print("Starting browser...")
 chromeOpts = Options()
 chromeOpts.headless = True
 browser = Chrome(executable_path="C:\\Program Files (x86)\\Google\\ChromeDriver\\chromedriver.exe", options=chromeOpts)
-print("Searching words.")
+print("Searching words...")
 for wordInd in range(numCards):
     try:
         pitchAccent = searchWord(browser, cards[wordInd][1])
